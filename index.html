@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio - Progama Pizzaria</title>
+    <style>
+        /* formatação em css dos ids idCampos, e dos elementos body, p, input e table  */
+        #idCampos,
+        input,
+        table {
+            width: 45%;
+            border-collapse: collapse;
+            border: 3px solid #2d2e30;
+            margin: auto;
+            text-align: center;
+            font-size: 12.5pt;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #aaa093;
+        }
+
+        body {
+            background-image: url(https://img.freepik.com/fotos-gratis/hora-da-pizza-saborosa-pizza-caseira-tradicional-receita-italiana_144627-42528.jpg?t=st=1656121756~exp=1656122356~hmac=b23ae67db8eb35b22ee9115d95b5244662ec8d17032924decd546b2b3ffa953a&w=2000);
+            background-size: 150%;
+            background-repeat: no-repeat;
+            background-color: black;
+        }
+
+        p {
+            text-shadow: 2px;
+            text-align: center;
+            color: #2d2e30;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 30px;
+            font-weight: bolder;
+        }
+    </style>
+</head>
+
+<body>
+    <!--
+        O software deverá receber diversos tamanhos de pizza e seus respectivos preços e ao final exibir um relatório informando em valores absolutos e relativos (percentual) qual a diferença de preços entre as pizzas e deverá informar qual pizza tem o melhor custo benefício.
+        Entradas: 1. Nome comercial (broto, baby, pequena, média, grande, exagerada, gigante, etc), o tamanho da pizza (diâmetro em centímetros) e respectivo preço. O software deverá aceitar tantas entradas quanto o usuário deseja comparar, desde que não haja tamanhos duplicados.
+    -->
+    <br>
+    <fieldset id="idCampos">
+        <form action="">
+            <p>Cadastro de Pizzas</p>
+
+            <!--Campo para colocar o tipo da pizza-->
+            <label for="idTipo">Tipo:</label>
+            <input type="text" name="nmTipo" id="idTipo" placeholder="pequena, média, grande, exagerada">
+            <br><br>
+
+            <!--Campo para colocar o tamanho da pizza-->
+            <label for="idTamanho">Tamanho:</label>
+            <input type="number" name="nmTamanho" id="idTamanho" step="0.01" placeholder="em centimetros">
+            <br><br>
+
+            <!--Campo para colocar o preço da pizza-->
+            <label for="idPreco">Preço:</label>
+            <input type="number" name="nmPreco" id="idPreco" step="0.01" placeholder="(R$)">
+            <br><br>
+
+            <!--Botões para salvar dados e gerar relatório-->
+            <input type="button" id="idSalvarDados" value="Salvar Dados">
+            <input type="button" id="idGerarRelatório" value="Gerar Relatório">
+            <br><br>
+
+
+    </fieldset>
+    <br><br>
+    <!--Tabela de resultados dos dados salvos-->
+    <table id="idResultados">
+        <tr>
+            <th>Tipo</th>
+            <th>Tamanho (cm)</th>
+            <th>Preço (R$)</th>
+            <th>Preço por cm² (R$)</th>
+            <th>Diferença de Preço</th>
+        </tr>
+    </table>
+    </form>
+</body>
+<script>
+    /* variaveis criadas para criar arrays de tipos, tamanhos, precos, preco porCm, e diferenca do preço */
+    let tipos = []
+    let tamanhos = []
+    let precos = []
+    let precoPorCm = []
+    let diferencaPreco = []
+    /* variaveis criadas para os botoes de Salvar Dados e Gerar Relatório */
+    let BotaoSalvarDados = document.getElementById("idSalvarDados")
+    let BotaoGerarRelatorio = document.getElementById("idGerarRelatório")
+
+    /* Botão Salvar dados funçoes:*/
+    BotaoSalvarDados.onclick = function () {
+        ValidarFormulario()
+
+        /* funçao validar dados: verifica se todos os campos foram preenchidos, caso não, gera alertas na pagina. */
+        function ValidarFormulario() {
+            /* variaveis de tipo, tamanho e preco para pegar valores colocados nos campos */
+            let tipo = document.getElementById("idTipo")
+            let tamanho = Number(document.getElementById("idTamanho"))
+            let preco = Number(document.getElementById("idPreco"))
+
+            if (document.getElementById("idTipo").value.length == "" | document.getElementById("idTipo").value.length == " ") {
+                alert("Por favor, preencha o campo Tipo!")
+                document.getElementById("idTipo").focus()
+                return false
+            }
+
+            else if (document.getElementById("idTamanho").value.length == "" | document.getElementById("idTamanho").value.length == " ") {
+                alert("Por favor, preencha o campo Tamanho!")
+                document.getElementById("idTamanho").focus()
+                return false
+            }
+
+            else if (document.getElementById("idPreco").value.length == "" | document.getElementById("idPreco").value.length == " ") {
+                alert("Por favor, preencha o campo Preço!")
+                document.getElementById("idPreco").focus()
+                return false
+            }
+            else {
+                return true
+            }
+        }
+
+        /* se os campos forem preenchidos corretamente, ele passa para a função Calcular Area da Pizza e Calcular Preco Por Area */
+        if (ValidarFormulario() == true) {
+            CalcularAreaPizza()
+            CalcularPrecoPorArea()
+
+            if (CalcularAreaPizza() == true && CalcularPrecoPorArea() == true) {
+                /* se as duas funcoes forem feitas ele passa pra a funçao Salvar Dados */
+                SalvarDados()
+            }
+        }
+
+        /* função para Calcular Area da Pizza */
+        function CalcularAreaPizza() {
+            let raioPizza = (Number(document.getElementById("idTamanho").value)) / 2
+            PizzaArea = (raioPizza * raioPizza) * Math.PI
+            return true
+        }
+
+        /* função para Calcular Preco por Area */
+        function CalcularPrecoPorArea() {
+            preco = Number(document.getElementById("idPreco").value)
+            PrecoPorArea = preco / PizzaArea
+            return true
+        }
+        
+        /* função para colocar dados nos arrays tipos, tamanhos, precos e precosPorCm */
+        function SalvarDados() {
+            tipos.push(document.getElementById("idTipo").value)
+            tamanhos.push(Number(document.getElementById("idTamanho").value))
+            precos.push(Number(document.getElementById("idPreco").value))
+            precoPorCm.push(PrecoPorArea.toFixed(2))
+
+            /* limpa os campos depois de salvo os dados nos arrays */
+            document.getElementById("idTipo").value = ""
+            document.getElementById("idTamanho").value = ""
+            document.getElementById("idPreco").value = ""
+        }
+    }
+
+    /* Botão Gerar Relatório funçoes:*/
+    BotaoGerarRelatorio.onclick = function () {
+        /* funcões para calcular diferença de preço entre as pizzas salvas e colocar os restantes dos dados nos arrays respectivos :*/
+        CalcularDiferencaPreco()
+        ColocarDadosNoArray()
+
+        /* funcões para calcular diferença de preço */
+        function CalcularDiferencaPreco() {
+            /* pega o menor valor de preco por cm */
+            MenorPrecoPorCm = Math.min(...precoPorCm)
+            /* calcula a diferenca em porcentagem do menor preco por cm */
+            for (var i = 0; i < precoPorCm.length; i++) {
+                diferenca = ((precoPorCm[i] - MenorPrecoPorCm) / precoPorCm[i]) * 100
+
+                /* coloca os resultados no array diferencaPreco */
+                diferencaPreco.push(diferenca.toFixed(2))
+            }
+        }
+
+        /* coloca os dados no array multidimensional */
+        function ColocarDadosNoArray() {
+            CadastroPizzas = []
+
+            for (var i = 0; i < diferencaPreco.length; i++) {
+                CadastroPizzas.push({ "tipo": tipos[i], "tamanho": tamanhos[i], "preco": precos[i], "precosPorCm": precoPorCm[i], "difPreco": diferencaPreco[i] });
+            }
+
+            /* organiza o array conforme a dif Preco */
+            CadastroPizzas.sort(function (a, b) {
+                return a.difPreco - b.difPreco;
+            });
+
+            /* console.table com resultado correto */
+            console.table(CadastroPizzas)
+
+
+            /* funcao para colocar array na tabela de resultado - que nao deu certo */
+            for (var i = 0; i < CadastroPizzas.length; i++) {
+                for (var j = 0; j < CadastroPizzas[i].length; ++j) {
+                    if (CadastroPizzas[i][j] == 0.00) {
+                        let TabeladeResultados = document.getElementById("idTabelaRelatorio")
+                        // adiciona linha na tabela
+                        let tr = TabeladeResultados.insertRow()
+
+                        // adiciona coluna na tabela
+                        let tdTipo = tr.insertCell()
+                        let tdTamanho = tr.insertCell()
+                        let tdPreco = tr.insertCell()
+                        let tdPrecoPorCm = tr.insertCell()
+                        let tdDifencaPreco = tr.insertCell()
+
+                        // adiciona os valores na tabela
+                        tdTipo.innerText = CadastroPizzas[i]
+                        tdTamanho.innerText = CadastroPizzas[i]
+                        tdPreco.innerText = CadastroPizzas[i]
+                        tdPrecoPorCm.innerText = CadastroPizzas[i]
+                        tdDifencaPreco.innerText = "Melhor Custo Beneficio!"
+                    }
+                    else if (CadastroPizzas[i][j] > 0.00) {
+                        let TabeladeResultados = document.getElementById("idTabelaRelatorio")
+                        // adiciona linha na tabela
+                        let tr = TabeladeResultados.insertRow()
+
+                        // adiciona coluna na tabela
+                        let tdTipo = tr.insertCell()
+                        let tdTamanho = tr.insertCell()
+                        let tdPreco = tr.insertCell()
+                        let tdPrecoPorCm = tr.insertCell()
+                        let tdDifencaPreco = tr.insertCell()
+
+                        // adiciona os valores na tabela
+                        tdTipo.innerText = CadastroPizzas[i][0]
+                        tdTamanho.innerText = CadastroPizzas[i][1]
+                        tdPreco.innerText = CadastroPizzas[i][2]
+                        tdPrecoPorCm.innerText = CadastroPizzas[i][4]
+                        tdDifencaPreco.innerText = "+" + CadastroPizzas[i][4] + "%"
+                    }
+
+
+                }
+            }
+        }
+    }
+</script>
+
+</html>
